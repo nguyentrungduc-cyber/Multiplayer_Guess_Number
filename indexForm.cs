@@ -1,33 +1,39 @@
 ﻿using System;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading;
 using System.Collections.Generic;
-using System.Text;
-using System.Windows.Forms;
-using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
+using System.Configuration;
 using System.Drawing;
 using System.Linq;
-using System.Configuration;
+using System.Linq.Expressions;
+using System.Net;
+using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading;
+using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace Lab06
 {
     public partial class indexForm : Form
     {
-        private Thread thread = null;
-        private TcpListener serverSocket;
-        private mainForm serverForm = null;
+        private Thread thread = null; // Luồng chạy chính của Server
+        private TcpListener serverSocket; // Đối tượng dùng để mở cổng và lắng nghe kết nối
+
+        private mainForm serverForm = null; // Biến lưu giao diện Form chơi game của chính người host
+
+        // Các biến lưu thông tin trò chơi
         private int clientsCount = 0, currentRound, timeupCount, startRange, endRange, ansNumber, round = 0;
         private String correctPlayer, time = "";
-        private Random rand;
-        private bool ingame = false;
-        private readonly object _lock = new object();
-        private Dictionary<String, int> scoreBoard = new Dictionary<string, int>();
-        private Dictionary<String, bool> readyPlayers = new Dictionary<string, bool>();
-        private readonly Dictionary<String, TcpClient> clientsList = new Dictionary<string, TcpClient>();
+        private Random rand; // Đối tượng dùng để sinh số ngẫu nhiên
+        private bool ingame = false; // Cờ đánh dấu xem game đã bắt đầu chưa
 
+        private readonly object _lock = new object(); // Đối tượng dùng để khóa (lock) khi thao tác với dữ liệu dùng chung giữa các luồng, tránh xung đột.
+
+        // Các bộ từ điển (Dictionary) lưu trữ thông tin:
+        private Dictionary<String, int> scoreBoard = new Dictionary<string, int>(); // Lưu Điểm số (Tên -> Điểm)
+        private Dictionary<String, bool> readyPlayers = new Dictionary<string, bool>(); // Lưu trạng thái Sẵn sàng
+        private readonly Dictionary<String, TcpClient> clientsList = new Dictionary<string, TcpClient>(); // Lưu các luồng kết nối mạng của từng Client
         public indexForm()
         {
             InitializeComponent();
@@ -35,6 +41,8 @@ namespace Lab06
             rand = new Random();
         }
 
+
+        // Xử lý nút "Tham Gia" (Dành cho Client)
         private void btnClient_Click(object sender, EventArgs e)
         {
             this.Hide();
@@ -47,19 +55,22 @@ namespace Lab06
             serverForm = new mainForm(this, joinUsername.Text, joinIP.Text, joinPort.Text, time);
             serverForm.Show();
 
+            // Client -> thread(Luồng máy chủ) không có
             if (thread == null)
             {
-                serverForm = null;
+                serverForm = null; // Nếu Crash hay Disconnect thì sẽ cho phép tạo lại ServerForm mới
             }
         }
 
+        // Xử lý nút "Tạo Game" (Khởi động Server)
         private void btnServer_Click(object sender, EventArgs e)
         {
-            btnServer.Enabled = false;
+            btnServer.Enabled = false; 
             thread = new Thread(serverThread);
             thread.Start();
         }
 
+        // Luồng hoạt động chính của Server, sẽ chạy song song với giao diện người dùng và đảm nhiệm việc lắng nghe kết nối, quản lý trò chơi, v.v.
         private void serverThread()
         {
             int port;
@@ -68,6 +79,7 @@ namespace Lab06
                 port = Int32.Parse(hostPort.Text);
                 // Thay vì chỉ khởi tạo bình thường, hãy thiết lập cho phép tái sử dụng cổng
                 serverSocket = new TcpListener(IPAddress.Any, port);
+                // cho phép tái sử dụng lại cổng này ngay lập tức nếu Server bị tắt đột ngột, tránh lỗi "Address already in use".
                 serverSocket.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                 serverSocket.Start();
             }
@@ -75,13 +87,14 @@ namespace Lab06
             {
                 // Hiển thị lỗi thật sự để biết tại sao
                 MessageBox.Show("Lỗi port chi tiết: " + ex.Message);
-
+                // Mở lại nút bấm btnServer để người dùng có thể thử lại với cổng khác
                 btnServer.Invoke(new MethodInvoker(delegate () { btnServer.Enabled = true; }));
                 return;
             }
 
             time = DateTime.Now.ToString("h:mm:ss tt");
 
+            // Tự động điền thông tin Client cho Server vào giao diện để chủ phòng cũng vào xem được
             this.Invoke(new MethodInvoker(delegate ()
             {
                 joinUsername.Text = "Server";
@@ -90,6 +103,7 @@ namespace Lab06
                 joinUsername.Enabled = joinIP.Enabled = joinPort.Enabled = hostPort.Enabled = false;
             }));
 
+            // Tạo một luồng click hộ vào nút "Tham gia" cho máy chủ
             (new Thread(() => this.Invoke(new MethodInvoker(delegate ()
             {
                 btnClient.PerformClick();
@@ -97,38 +111,43 @@ namespace Lab06
 
             MessageBox.Show("Tạo game mới thành công");
 
+            // Vòng lặp vô hạn để chờ các Client khác kết nối vào trong khi Server vẫn đang chạy, sẽ chỉ dừng lại khi Server bị tắt hoặc có lỗi xảy ra.
             while (Thread.CurrentThread.IsAlive)
             {
                 TcpClient client = null;
                 try
                 {
-                    client = serverSocket.AcceptTcpClient();
+                    // // Chấp nhận một kết nối đến từ Client, nếu không có sẽ chờ ở đây
+                    client = serverSocket.AcceptTcpClient(); // Không tốn CPU khi chờ, vì đây là một phương thức blocking (chặn) cho đến khi có kết nối đến. 
                 }
                 catch (SocketException e)
                 {
+                    // Nếu Server bị tắt đột ngột, sẽ ném SocketException với mã lỗi Interrupted
                     if ((e.SocketErrorCode == SocketError.Interrupted))
                     {
+                        // Lúc đó sẽ thoát khỏi vòng lặp và kết thúc luồng.
                         break;
                     }
                 }
 
-                NetworkStream stream = client.GetStream();
-                byte[] buffer = new byte[1024];
-                int bytesCount = stream.Read(buffer, 0, buffer.Length);
+                NetworkStream stream = client.GetStream(); // Tạo kết nối mạng với Client vừa kết nối
+                byte[] buffer = new byte[1024]; 
+                int bytesCount = stream.Read(buffer, 0, buffer.Length); 
                 String username = Encoding.UTF8.GetString(buffer, 0, bytesCount);
 
                 if (thread != null && ingame)
                 {
-                    buffer = Encoding.UTF8.GetBytes("@@@Ingame!@@@");
+                    buffer = Encoding.UTF8.GetBytes("WARNING:INGAME!");
                     stream.Write(buffer, 0, buffer.Length);
-                    continue;
+                    continue; // Bỏ qua Client này
                 }
-
+                // Nếu người dùng không nhập tên, tự động cấp tên "Player X"
                 if (username == " ")
                 {
                     username = $"Player {clientsCount}";
                 }
 
+                // Nếu tên đã tồn tại trong phòng, từ chối kết nối
                 if (clientsList.ContainsKey(username))
                 {
                     buffer = Encoding.UTF8.GetBytes(" ");
@@ -138,10 +157,12 @@ namespace Lab06
                 buffer = Encoding.UTF8.GetBytes(username);
                 stream.Write(buffer, 0, buffer.Length);
 
+                // Lưu người chơi này vào danh sách clientsList, dùng lock để an toàn luồng nếu nhiều Client cùng kết nối vào cùng lúc
                 lock (_lock) clientsList.Add(username, client);
+
                 if (username != "Server")
                 {
-                    broadcast($"m>>> {username} vừa vào phòng chơi", username);
+                    broadcast($"NEWS: {username} vừa vào phòng chơi", username);
                     scoreBoard.Add(username, 0);
                 }
 
@@ -149,7 +170,7 @@ namespace Lab06
 
                 Thread handlingThread = new Thread(o => clientCheck((string)o));
                 handlingThread.Start(username);
-                broadcast($"\t{clientsList.Count - 1}");
+                broadcast($"\t{clientsList.Count - 1}"); // Trừ 1 do Server cũng được tính vào clientsList nhưng không phải người chơi thực sự, chỉ để hiển thị số người chơi đang tham gia.
             }
 
             btnServer.Invoke(new MethodInvoker(delegate ()

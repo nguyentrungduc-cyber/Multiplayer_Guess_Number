@@ -116,12 +116,12 @@
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 25F, System.Drawing.FontStyle.Bold);
             this.label5.ForeColor = System.Drawing.Color.DarkGreen;
-            this.label5.Location = new System.Drawing.Point(82, 21);
+            this.label5.Location = new System.Drawing.Point(110, 21);
             this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(502, 48);
+            this.label5.Size = new System.Drawing.Size(669, 48);
             this.label5.TabIndex = 11;
-            this.label5.Text = "NUMBER MAGIC GAME";
+            this.label5.Text = "Multiplayer Guess Number Game";
             // 
             // btnClient
             // 
@@ -133,12 +133,12 @@
             this.btnClient.FillColor = System.Drawing.Color.LimeGreen;
             this.btnClient.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold);
             this.btnClient.ForeColor = System.Drawing.Color.White;
-            this.btnClient.Location = new System.Drawing.Point(32, 195);
-            this.btnClient.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnClient.Location = new System.Drawing.Point(98, 195);
+            this.btnClient.Margin = new System.Windows.Forms.Padding(2);
             this.btnClient.Name = "btnClient";
             this.btnClient.Size = new System.Drawing.Size(296, 39);
             this.btnClient.TabIndex = 12;
-            this.btnClient.Text = "Join a game ";
+            this.btnClient.Text = "Tham gia";
             this.btnClient.Click += new System.EventHandler(this.btnClient_Click);
             // 
             // btnServer
@@ -151,16 +151,17 @@
             this.btnServer.FillColor = System.Drawing.Color.LimeGreen;
             this.btnServer.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold);
             this.btnServer.ForeColor = System.Drawing.Color.White;
-            this.btnServer.Location = new System.Drawing.Point(356, 195);
-            this.btnServer.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnServer.Location = new System.Drawing.Point(494, 195);
+            this.btnServer.Margin = new System.Windows.Forms.Padding(2);
             this.btnServer.Name = "btnServer";
             this.btnServer.Size = new System.Drawing.Size(296, 39);
             this.btnServer.TabIndex = 13;
-            this.btnServer.Text = "Host a new game";
+            this.btnServer.Text = "Tạo game";
             this.btnServer.Click += new System.EventHandler(this.btnServer_Click);
             // 
             // joinUsername
             // 
+            this.joinUsername.AutoSize = true;
             this.joinUsername.BorderColor = System.Drawing.Color.Green;
             this.joinUsername.BorderRadius = 23;
             this.joinUsername.Cursor = System.Windows.Forms.Cursors.IBeam;
@@ -170,17 +171,17 @@
             this.joinUsername.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
             this.joinUsername.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
             this.joinUsername.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            this.joinUsername.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
+            this.joinUsername.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.joinUsername.ForeColor = System.Drawing.Color.Green;
             this.joinUsername.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            this.joinUsername.Location = new System.Drawing.Point(179, 110);
-            this.joinUsername.Margin = new System.Windows.Forms.Padding(5, 5, 5, 5);
+            this.joinUsername.Location = new System.Drawing.Point(288, 110);
+            this.joinUsername.Margin = new System.Windows.Forms.Padding(5);
             this.joinUsername.Name = "joinUsername";
             this.joinUsername.PasswordChar = '\0';
-            this.joinUsername.PlaceholderForeColor = System.Drawing.Color.Green;
-            this.joinUsername.PlaceholderText = "Enter your username";
+            this.joinUsername.PlaceholderForeColor = System.Drawing.SystemColors.ActiveBorder;
+            this.joinUsername.PlaceholderText = "Nhập tên game\r\n";
             this.joinUsername.SelectedText = "";
-            this.joinUsername.Size = new System.Drawing.Size(312, 41);
+            this.joinUsername.Size = new System.Drawing.Size(312, 43);
             this.joinUsername.TabIndex = 14;
             this.joinUsername.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -189,7 +190,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.ClientSize = new System.Drawing.Size(889, 463);
+            this.ClientSize = new System.Drawing.Size(889, 323);
             this.Controls.Add(this.joinUsername);
             this.Controls.Add(this.btnServer);
             this.Controls.Add(this.btnClient);
