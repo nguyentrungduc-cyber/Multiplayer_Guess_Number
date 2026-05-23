@@ -196,6 +196,11 @@ namespace Lab06
 
         }
 
+        private void playerNum_Click(object sender, EventArgs e)
+        {
+
+        }
+
         private void btnSubmit_Click(object sender, EventArgs e)
         {
             submit(Int32.Parse(answer.Text));

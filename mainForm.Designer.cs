@@ -133,6 +133,7 @@
             this.playerNum.Size = new System.Drawing.Size(982, 33);
             this.playerNum.TabIndex = 7;
             this.playerNum.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.playerNum.Click += new System.EventHandler(this.playerNum_Click);
             // 
             // btnAutoPlaySingleTurn
             // 
@@ -261,7 +262,7 @@
             this.answer.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F);
             this.answer.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
             this.answer.Location = new System.Drawing.Point(506, 138);
-            this.answer.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.answer.Margin = new System.Windows.Forms.Padding(4);
             this.answer.Name = "answer";
             this.answer.PasswordChar = '\0';
             this.answer.PlaceholderText = "";
@@ -279,7 +280,7 @@
             this.btnSubmit.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold);
             this.btnSubmit.ForeColor = System.Drawing.Color.White;
             this.btnSubmit.Location = new System.Drawing.Point(651, 138);
-            this.btnSubmit.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnSubmit.Margin = new System.Windows.Forms.Padding(2);
             this.btnSubmit.Name = "btnSubmit";
             this.btnSubmit.Size = new System.Drawing.Size(81, 35);
             this.btnSubmit.TabIndex = 20;

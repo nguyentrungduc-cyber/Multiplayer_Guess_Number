@@ -171,8 +171,8 @@
             this.joinUsername.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
             this.joinUsername.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
             this.joinUsername.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            this.joinUsername.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.joinUsername.ForeColor = System.Drawing.Color.Green;
+            this.joinUsername.Font = new System.Drawing.Font("Segoe UI", 10.8F);
+            this.joinUsername.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.joinUsername.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
             this.joinUsername.Location = new System.Drawing.Point(288, 110);
             this.joinUsername.Margin = new System.Windows.Forms.Padding(5);

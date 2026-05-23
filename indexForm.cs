@@ -137,7 +137,7 @@ namespace Lab06
 
                 if (thread != null && ingame)
                 {
-                    buffer = Encoding.UTF8.GetBytes("WARNING:INGAME!");
+                    buffer = Encoding.UTF8.GetBytes("@@@Ingame!@@@");
                     stream.Write(buffer, 0, buffer.Length);
                     continue; // Bỏ qua Client này
                 }
@@ -162,7 +162,7 @@ namespace Lab06
 
                 if (username != "Server")
                 {
-                    broadcast($"NEWS: {username} vừa vào phòng chơi", username);
+                    broadcast($"mNEWS: {username} vừa vào phòng chơi", username);
                     scoreBoard.Add(username, 0);
                 }
 
@@ -173,6 +173,7 @@ namespace Lab06
                 broadcast($"\t{clientsList.Count - 1}"); // Trừ 1 do Server cũng được tính vào clientsList nhưng không phải người chơi thực sự, chỉ để hiển thị số người chơi đang tham gia.
             }
 
+            // Khi Server ngừng chạy thì sẽ kích hoạt lại nút bấm btnServer để người dùng có thể tạo lại Server mới nếu muốn.
             btnServer.Invoke(new MethodInvoker(delegate ()
             {
                 btnServer.Enabled = true;
@@ -183,20 +184,23 @@ namespace Lab06
         // Set số round cho mỗi game và khoảng số cần đoán
         private void roundStart()
         {
-            Thread.Sleep(2000);
+            // Đợi 5 giây trước khi bắt đầu round mới để mọi người kịp chuẩn bị, nếu có người chơi nào chưa sẵn sàng thì vẫn có thể tham gia vào round này.
+            Thread.Sleep(5000);
+            // Reset lại biến đếm số người chơi đã hết giờ để chờ round mới
             timeupCount = 0;
 
+            // Nếu chưa có số round nào được thiết lập cho game này thì sẽ sinh ngẫu nhiên một số round từ 3 đến 10, và thông báo cho mọi người biết.
             if (round == 0)
             {
-                round = rand.Next(3, 10);
-                broadcast($"mTrò chơi có {round} round");
+                round = rand.Next(5, 7);
+                broadcast($"mNEWS: Trò chơi có {round} round"); 
                 currentRound = 1;
             }
 
             startRange = rand.Next(0, 50);
-            endRange = startRange + rand.Next(1, 50);
+            endRange = startRange + rand.Next(1, 50); // Đảm bảo khoảng số hợp lệ, endRange phải lớn hơn startRange ít nhất 1 đơn vị
             ansNumber = rand.Next(startRange, endRange + 1);
-            broadcast($"m>>> Round {currentRound}: Đoán một số trong khoảng [{startRange}, {endRange}].\n@@@Nextround!@@@{rand.Next(5, 11)}\t{startRange}\t{endRange}\t{ansNumber}");
+            broadcast($"mNEWS: Round {currentRound}: Đoán một số trong khoảng [{startRange}, {endRange}].\n@@@Nextround!@@@{rand.Next(5, 11)}\t{startRange}\t{endRange}\t{ansNumber}");
             currentRound++;
             correctPlayer = "";
         }
