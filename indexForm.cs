@@ -205,7 +205,7 @@ namespace Lab06
             startRange = rand.Next(0, 50);
             endRange = startRange + rand.Next(1, 50); // Đảm bảo khoảng số hợp lệ, endRange phải lớn hơn startRange ít nhất 1 đơn vị
             ansNumber = rand.Next(startRange, endRange + 1);
-            broadcast($"mNEWS: Round {currentRound}: Đoán một số trong khoảng [{startRange}, {endRange}].\n@@@Nextround!@@@{rand.Next(5, 11)}\t{startRange}\t{endRange}\t{ansNumber}");
+            broadcast($"mNEWS: Round {currentRound}: Đoán một số trong khoảng [{startRange}, {endRange}].\n@@@Nextround!@@@{rand.Next(15, 21)}\t{startRange}\t{endRange}\t{ansNumber}");
             currentRound++;
             correctPlayer = "";
         }
