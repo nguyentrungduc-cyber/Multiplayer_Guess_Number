@@ -32,8 +32,8 @@ Người đoán đúng và nhanh nhất sẽ giành chiến thắng vòng đó. 
 ### Phía Server
 - **Quản lý trung tâm:** Giao diện trực quan hiển thị các thông tin: số đang tìm (ẩn/hiện tuỳ chọn), phạm vi số, lịch sử trò chơi, số người đang online, và số lượt chơi hiện tại.
 - **Tự động điều hành:** Tự quyết định số vòng chơi (tối thiểu 5 vòng). Thông báo kết quả và vòng mới tức thì đến toàn bộ người chơi.
-- **Báo cáo đám mây:** Khi kết thúc game, tự động tổng hợp toàn bộ lịch sử trò chơi và đẩy lên [ctxt.io](https://ctxt.io) (hoặc Pastebin).
-- **Auto-shutdown:** Tự động đóng server sau khi đã lưu trữ và gửi báo cáo kết thúc game.
+- **Báo cáo đám mây:** Khi đóng cửa sổ Server/Client, lịch sử trò chơi được tự động đẩy lên [ctxt.io](https://ctxt.io) để lưu trữ và chia sẻ.
+- **Tự khởi động lại vòng chờ:** Sau khi kết thúc game (đủ số round), Server tự reset điểm số và trạng thái Ready, quay về chờ người chơi mới sẵn sàng cho ván tiếp theo — không cần khởi động lại Server.
 
 ### Phía Client
 - **Giao diện tương tác:** Cho phép nhập tên người chơi, số dự đoán và hiển thị log thông báo real-time từ Server (Vòng mới, người thắng, dải số hiện tại...).
@@ -83,10 +83,34 @@ Dự án đã được tích hợp thêm các tính năng nâng cao sau nhằm t
 ## 🛠 Cài đặt và Chạy ứng dụng
 
 ### Yêu cầu hệ thống
-- Tùy thuộc vào ngôn ngữ bạn code (VD: Java JDK 11+, .NET Framework / .NET Core, Python 3.x...).
-- Mạng LAN hoặc Localhost để test ứng dụng.
+- **Windows** (ứng dụng WinForms, không chạy được trên Linux/macOS)
+- **.NET Framework 4.7.2** trở lên
+- **Visual Studio 2019/2022** (khuyến nghị, để mở file `Lab06.sln`)
+- Mạng LAN hoặc `localhost` để test nhiều client cùng lúc
 
 ### Hướng dẫn khởi chạy
+
 1. Clone repository này về máy:
    ```bash
-   git clone [https://github.com/your-username/guess-number-multiplayer.git](https://github.com/your-username/guess-number-multiplayer.git)
+   git clone https://github.com/nguyentrungduc-cyber/Multiplayer_Guess_Number.git
+   ```
+
+2. Mở file `Lab06.sln` bằng Visual Studio.
+
+3. Restore NuGet packages nếu được yêu cầu (chuột phải vào Solution → **Restore NuGet Packages**).
+
+4. Build project (Ctrl+Shift+B), đảm bảo không có lỗi compile.
+
+5. Chạy thử với nhiều "người chơi" trên cùng 1 máy:
+   - F5 để chạy 1 instance đầu tiên → bấm **"Tạo Game"** để làm Server (nhập port, VD: `5000`).
+   - Vào thư mục `bin/Debug`, chạy trực tiếp file `Lab06.exe` thêm nhiều lần (mỗi lần là 1 "Client" riêng) → bấm **"Tham Gia"**, nhập IP `localhost` và đúng port vừa tạo.
+   - Bấm **"Sẵn sàng"** ở các client để bắt đầu round chơi.
+
+6. Để test qua mạng LAN thật (nhiều máy khác nhau): máy chủ chạy Server, các máy khác nhập đúng địa chỉ IP LAN của máy chủ (kiểm tra bằng `ipconfig`) thay vì `localhost`.
+
+---
+
+## 🧪 Kiểm thử (Testing)
+
+Lộ trình test chi tiết — từ happy path, các case bug đã fix, đến test biên và stress test — được trình bày đầy đủ tại **[TESTING.md](TESTING.md)**.
+
