@@ -128,7 +128,12 @@ namespace Lab06
                         // Lúc đó sẽ thoát khỏi vòng lặp và kết thúc luồng.
                         break;
                     }
+                    // Với các lỗi khác (VD: mạng chập chờn), bỏ qua kết nối lỗi này và tiếp tục chờ client tiếp theo,
+                    // tránh crash toàn bộ server do client bị null ở bước dưới.
+                    continue;
                 }
+
+                if (client == null) continue; // An toàn: nếu vì lý do nào đó client vẫn null thì bỏ qua
 
                 NetworkStream stream = client.GetStream(); // Tạo kết nối mạng với Client vừa kết nối
                 byte[] buffer = new byte[1024]; 
@@ -163,7 +168,7 @@ namespace Lab06
                 if (username != "Server")
                 {
                     broadcast($"mNEWS: {username} vừa vào phòng chơi", username);
-                    scoreBoard.Add(username, 0);
+                    lock (_lock) scoreBoard.Add(username, 0);
                 }
 
                 clientsCount++;
@@ -236,27 +241,30 @@ namespace Lab06
                 foreach (String data in dataList)
                     if (data[0] == 's')
                     {
-                        if (correctPlayer == "" && timeupCount < readyPlayers.Count)
-                            try
-                            {
-                                int ans = Int32.Parse(data.Substring(1));
-                                if (ans == ansNumber)
+                        lock (_lock)
+                        {
+                            if (correctPlayer == "" && timeupCount < readyPlayers.Count)
+                                try
                                 {
-                                    correctPlayer = username;
-                                    scoreBoard[username] += 10;
-                                    broadcast($"mĐã tìm thấy người chơi chiến thắng tại round {currentRound - 1}");
+                                    int ans = Int32.Parse(data.Substring(1));
+                                    if (ans == ansNumber)
+                                    {
+                                        correctPlayer = username;
+                                        scoreBoard[username] += 10;
+                                        broadcast($"mĐã tìm thấy người chơi chiến thắng tại round {currentRound - 1}");
+                                    }
+                                    if (ans != ansNumber)
+                                    {
+                                        broadcast($"m{username} đoán sai! ({ans}). -1 điểm");
+                                        scoreBoard[username]--;
+                                    }
                                 }
-                                if (ans != ansNumber)
+                                catch
                                 {
-                                    broadcast($"m{username} đoán sai! ({ans}). -1 điểm");
+                                    broadcast($"m{username} nhập đáp án không hợp lệ. -1 điểm");
                                     scoreBoard[username]--;
                                 }
-                            }
-                            catch
-                            {
-                                broadcast($"m{username} nhập đáp án không hợp lệ. -1 điểm");
-                                scoreBoard[username]--;
-                            }
+                        }
                     }
                     else if (data[0] == 'm')
                     {
@@ -264,19 +272,28 @@ namespace Lab06
                     }
                     else if (data == "@@@Timeup!@@@")
                     {
-                        timeupCount++;
-                        if (timeupCount == readyPlayers.Count) (new Thread(() => timeUp())).Start();
+                        bool shouldTimeUp = false;
+                        lock (_lock)
+                        {
+                            timeupCount++;
+                            if (timeupCount == readyPlayers.Count) shouldTimeUp = true;
+                        }
+                        if (shouldTimeUp) (new Thread(() => timeUp())).Start();
                     }
                     else if (data == "@@@Ready!@@@")
                     {
                         broadcast($"m>>> {username} đã sẵn sàng!");
-                        readyPlayers.Add(username, true);
+                        lock (_lock) readyPlayers.Add(username, true);
                         readyCheck();
                     }
             }
 
             lock (_lock) clientsList.Remove(username);
-            client.Client.Shutdown(SocketShutdown.Both);
+            try
+            {
+                client.Client.Shutdown(SocketShutdown.Both);
+            }
+            catch { /* Socket có thể đã đóng từ phía client, bỏ qua để không crash thread */ }
             client.Close();
 
             if (username == "Server")
@@ -296,18 +313,35 @@ namespace Lab06
                     }
                 }
                 broadcast($"\t{clientsList.Count - 1}");
-                scoreBoard.Remove(username);
-                if (readyPlayers.ContainsKey(username)) readyPlayers.Remove(username);
+                lock (_lock)
+                {
+                    scoreBoard.Remove(username);
+                    if (readyPlayers.ContainsKey(username)) readyPlayers.Remove(username);
+                }
                 readyCheck();
             }
         }
 
         private void readyCheck()
         {
-            if (readyPlayers.Count != 0 && readyPlayers.Count == clientsList.Count - 1)
+            bool shouldStart = false;
+            int readyCount = 0;
+            lock (_lock)
             {
-                ingame = true;
-                broadcast($"mHiện có {readyPlayers.Count} người chơi");
+                // Chỉ được phép khởi động round mới nếu game CHƯA đang diễn ra (!ingame).
+                // Trước đây thiếu điều kiện này nên khi 1 người chơi đã Ready rời phòng giữa game,
+                // readyPlayers.Count và clientsList.Count cùng giảm 1 → điều kiện vẫn đúng → vô tình
+                // start lại 1 round mới đè lên round đang chạy dở.
+                if (!ingame && readyPlayers.Count != 0 && readyPlayers.Count == clientsList.Count - 1)
+                {
+                    ingame = true;
+                    readyCount = readyPlayers.Count;
+                    shouldStart = true;
+                }
+            }
+            if (shouldStart)
+            {
+                broadcast($"mHiện có {readyCount} người chơi");
                 (new Thread(roundStart)).Start();
             }
         }
@@ -318,20 +352,26 @@ namespace Lab06
             {
                 ingame = false;
                 int highscore = int.MinValue;
-                foreach (var i in scoreBoard)
+                lock (_lock)
                 {
-                    if (i.Value > highscore)
+                    foreach (var i in scoreBoard)
                     {
-                        highscore = i.Value;
+                        if (i.Value > highscore)
+                        {
+                            highscore = i.Value;
+                        }
                     }
                 }
 
                 string message = $"mĐiểm cao nhất là: {highscore}\nNgười chơi có điểm cao nhất:\n";
-                foreach (var i in scoreBoard)
+                lock (_lock)
                 {
-                    if (i.Value == highscore)
+                    foreach (var i in scoreBoard)
                     {
-                        message += $"m  + {i.Key}\n";
+                        if (i.Value == highscore)
+                        {
+                            message += $"m  + {i.Key}\n";
+                        }
                     }
                 }
 
@@ -359,9 +399,12 @@ namespace Lab06
             }
 
             broadcast($"m=================\nm\nmTạo game mới...\nmChờ người chơi tham gia...\n@@@Newgame!@@@");
-            scoreBoard = scoreBoard.ToDictionary(p => p.Key, p => 0);
+            lock (_lock)
+            {
+                scoreBoard = scoreBoard.ToDictionary(p => p.Key, p => 0);
+                readyPlayers.Clear();
+            }
             round = 0;
-            readyPlayers.Clear();
         }
 
         public void broadcast(string data, String except = "")

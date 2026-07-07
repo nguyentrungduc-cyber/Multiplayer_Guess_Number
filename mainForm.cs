@@ -203,7 +203,12 @@ namespace Lab06
 
         private void btnSubmit_Click(object sender, EventArgs e)
         {
-            submit(Int32.Parse(answer.Text));
+            if (!Int32.TryParse(answer.Text, out int val))
+            {
+                MessageBox.Show("Vui lòng nhập một con số hợp lệ.", "Lỗi nhập liệu");
+                return;
+            }
+            submit(val);
             answer.Clear();
         }
 
