@@ -35,14 +35,24 @@ namespace Lab06
             if (webBrowser1.Url.ToString() == "https://ctxt.io/")
             {
                 HtmlElement editable = getData("div", "className", "editable");
+                if (editable == null)
+                {
+                    MessageBox.Show("Không tìm thấy khung soạn thảo trên trang, không thể lưu lịch sử.");
+                    return;
+                }
                 editable.InnerHtml = "";
                 string[] lines = text.Split('\n');
                 foreach (string line in lines)
                 {
-                    editable.InnerHtml += $"{line}<br>";
+                    // Escape HTML để tránh HTML Injection: nếu nội dung chat của người chơi
+                    // chứa các ký tự như <, >, & (VD: gõ thẻ HTML/script), trước đây sẽ bị
+                    // chèn thẳng vào InnerHtml và có thể phá layout hoặc chèn mã tùy ý vào trang ctxt.io.
+                    string safeLine = WebUtility.HtmlEncode(line);
+                    editable.InnerHtml += $"{safeLine}<br>";
                 }
-                getData("select", "className", "select").SetAttribute("value", "1d");
-                getData("input", "className", "button").InvokeMember("click");
+                var selectEl = getData("select", "className", "select");
+                selectEl?.SetAttribute("value", "1d");
+                getData("input", "className", "button")?.InvokeMember("click");
             }
             else
             {

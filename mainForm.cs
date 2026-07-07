@@ -259,6 +259,10 @@ namespace Lab06
             NetworkStream stream = client.GetStream();
             byte[] receivedBytes = new byte[1024];
             int bytesCount;
+            // Xem giải thích tương tự bên server (indexForm.cs / clientCheck): TCP là stream,
+            // 1 lần Read() có thể trả về message bị cắt dở hoặc nhiều message dính liền, nên cần
+            // tích lũy dữ liệu và chỉ xử lý các dòng đã kết thúc bằng '\n'.
+            StringBuilder recvBuffer = new StringBuilder();
 
             while (Thread.CurrentThread.IsAlive)
             {
@@ -267,10 +271,22 @@ namespace Lab06
                     if ((bytesCount = stream.Read(receivedBytes, 0, receivedBytes.Length)) <= 0) break;
                 }
                 catch { break; }
-                string respondFromServer = Encoding.UTF8.GetString(receivedBytes, 0, bytesCount);
-                var dataList = respondFromServer.Split(new String[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+                recvBuffer.Append(Encoding.UTF8.GetString(receivedBytes, 0, bytesCount));
+
+                string accumulated = recvBuffer.ToString();
+                int lastNewline = accumulated.LastIndexOf('\n');
+                if (lastNewline == -1) continue; // Chưa có dòng nào hoàn chỉnh, chờ đọc thêm
+
+                string completePart = accumulated.Substring(0, lastNewline);
+                recvBuffer.Clear();
+                recvBuffer.Append(accumulated.Substring(lastNewline + 1));
+
+                var dataList = completePart.Split(new String[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                bool shouldBreak = false;
                 foreach (String data in dataList)
                 {
+                    if (data.Length == 0) continue;
                     if (data[0] == 'm')
                         conversation.Invoke(new MethodInvoker(delegate ()
                         {
@@ -340,9 +356,11 @@ namespace Lab06
                     else if (data == "@@@Exit!@@@")
                     {
                         closeWhenServerDown();
+                        shouldBreak = true;
                         break;
                     }
                 }
+                if (shouldBreak) break;
             }
             if (isIngame)
             {

@@ -224,6 +224,11 @@ namespace Lab06
         {
             TcpClient client;
             lock (_lock) client = clientsList[username];
+            // Buffer tích lũy dữ liệu thô nhận được, vì TCP là giao thức stream:
+            // 1 lần Read() có thể nhận được message bị cắt dở (chưa đủ 1 dòng) hoặc nhiều message dính liền nhau.
+            // Trước đây code xử lý luôn mỗi lần Read() như thể luôn là các dòng hoàn chỉnh, có thể gây lỗi
+            // parse (data[0] rác, Int32.Parse thất bại...) khi mạng chậm/gói tin bị chia nhỏ.
+            StringBuilder recvBuffer = new StringBuilder();
             while (thread.IsAlive)
             {
                 int bytesCount = 0;
@@ -236,9 +241,22 @@ namespace Lab06
                 catch { }
                 if (bytesCount == 0) break;
 
-                string requestFromClient = Encoding.UTF8.GetString(buffer, 0, bytesCount);
-                var dataList = requestFromClient.Split(new String[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                recvBuffer.Append(Encoding.UTF8.GetString(buffer, 0, bytesCount));
+
+                // Chỉ tách và xử lý những dòng đã kết thúc bằng '\n'; phần còn lại (chưa có '\n')
+                // được giữ lại trong recvBuffer để nối tiếp với dữ liệu nhận được ở lần Read() sau.
+                string accumulated = recvBuffer.ToString();
+                int lastNewline = accumulated.LastIndexOf('\n');
+                if (lastNewline == -1) continue; // Chưa có dòng nào hoàn chỉnh, chờ đọc thêm
+
+                string completePart = accumulated.Substring(0, lastNewline);
+                recvBuffer.Clear();
+                recvBuffer.Append(accumulated.Substring(lastNewline + 1));
+
+                var dataList = completePart.Split(new String[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (String data in dataList)
+                {
+                    if (data.Length == 0) continue;
                     if (data[0] == 's')
                     {
                         lock (_lock)
@@ -286,6 +304,7 @@ namespace Lab06
                         lock (_lock) readyPlayers.Add(username, true);
                         readyCheck();
                     }
+                }
             }
 
             lock (_lock) clientsList.Remove(username);
