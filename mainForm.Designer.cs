@@ -218,11 +218,11 @@
             // 
             // timerCnt
             // 
-            this.timerCnt.Font = new System.Drawing.Font("Microsoft Sans Serif", 60F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.timerCnt.Location = new System.Drawing.Point(790, 33);
+            this.timerCnt.Font = new System.Drawing.Font("Microsoft Sans Serif", 48F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.timerCnt.Location = new System.Drawing.Point(780, 25);
             this.timerCnt.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.timerCnt.Name = "timerCnt";
-            this.timerCnt.Size = new System.Drawing.Size(153, 140);
+            this.timerCnt.Size = new System.Drawing.Size(190, 120);
             this.timerCnt.TabIndex = 16;
             this.timerCnt.Text = "0";
             this.timerCnt.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -253,7 +253,7 @@
             // 
             this.answer.BorderRadius = 23;
             this.answer.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.answer.DefaultText = "Enter your answer";
+            this.answer.DefaultText = "Nhập đáp án...";
             this.answer.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
             this.answer.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
             this.answer.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
