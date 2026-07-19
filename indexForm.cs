@@ -167,7 +167,7 @@ namespace Lab06
 
                 if (username != "Server")
                 {
-                    broadcast($"mNEWS: {username} vừa vào phòng chơi", username);
+                    broadcast($"m👋 {username} vừa vào phòng chơi", username);
                     lock (_lock) scoreBoard.Add(username, 0);
                 }
 
@@ -198,14 +198,14 @@ namespace Lab06
             if (round == 0)
             {
                 round = rand.Next(5, 7);
-                broadcast($"mNEWS: Trò chơi có {round} round"); 
+                broadcast($"m🎯 Trò chơi gồm {round} round. Chúc may mắn!"); 
                 currentRound = 1;
             }
 
             startRange = rand.Next(0, 50);
             endRange = startRange + rand.Next(1, 50); // Đảm bảo khoảng số hợp lệ, endRange phải lớn hơn startRange ít nhất 1 đơn vị
             ansNumber = rand.Next(startRange, endRange + 1);
-            broadcast($"mNEWS: Round {currentRound}: Đoán một số trong khoảng [{startRange}, {endRange}].\n@@@Nextround!@@@{rand.Next(15, 21)}\t{startRange}\t{endRange}\t{ansNumber}");
+            broadcast($"m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nm🎮 Round {currentRound}/{round} — Đoán số trong khoảng [{startRange}, {endRange}]\n@@@Nextround!@@@{rand.Next(15, 21)}\t{startRange}\t{endRange}\t{ansNumber}");
             currentRound++;
             correctPlayer = "";
         }
@@ -213,9 +213,11 @@ namespace Lab06
         private void timeUp()
         {
             string message;
-            if (correctPlayer == "") message = $"mKhông ai có đáp án chính xác";
-            else message = $"m{correctPlayer} là người chơi đưa ra đáp án nhanh nhất, +10 điểm";
-            broadcast($"{message}\nmĐáp án là: {ansNumber}.\nm------------------------------");
+            if (correctPlayer == "")
+                message = $"m⏱ Hết giờ — Không ai đoán đúng.\nmĐáp án là: {ansNumber}.";
+            else
+                message = $"m✅ {correctPlayer} đoán đúng nhanh nhất (+10 điểm).\nmĐáp án là: {ansNumber}.";
+            broadcast(message);
             if (currentRound > round) (new Thread(endGame)).Start();
             else if (ingame) (new Thread(roundStart)).Start();
         }
@@ -269,17 +271,17 @@ namespace Lab06
                                     {
                                         correctPlayer = username;
                                         scoreBoard[username] += 10;
-                                        broadcast($"mĐã tìm thấy người chơi chiến thắng tại round {currentRound - 1}");
+                                        broadcast($"m🏆 {username} đoán đúng! +10 điểm");
                                     }
                                     if (ans != ansNumber)
                                     {
-                                        broadcast($"m{username} đoán sai! ({ans}). -1 điểm");
+                                        broadcast($"m❌ {username} đoán sai ({ans}) — -1 điểm");
                                         scoreBoard[username]--;
                                     }
                                 }
                                 catch
                                 {
-                                    broadcast($"m{username} nhập đáp án không hợp lệ. -1 điểm");
+                                    broadcast($"m⚠️ {username} nhập không hợp lệ — -1 điểm");
                                     scoreBoard[username]--;
                                 }
                         }
@@ -382,14 +384,14 @@ namespace Lab06
                     }
                 }
 
-                string message = $"mĐiểm cao nhất là: {highscore}\nNgười chơi có điểm cao nhất:\n";
+                string message = $"m\nm🏁 Kết thúc game! Điểm cao nhất: {highscore}\nm👑 Người thắng:\n";
                 lock (_lock)
                 {
                     foreach (var i in scoreBoard)
                     {
                         if (i.Value == highscore)
                         {
-                            message += $"m  + {i.Key}\n";
+                            message += $"m    🥇 {i.Key}\n";
                         }
                     }
                 }
@@ -406,7 +408,7 @@ namespace Lab06
                         }
                         else
                         {
-                            buffer = Encoding.UTF8.GetBytes($"{message}\nmĐiểm của bạn: {scoreBoard[i.Key]}\n");
+                            buffer = Encoding.UTF8.GetBytes($"{message}\nm📊 Điểm của bạn: {scoreBoard[i.Key]}\n");
                         }
                         stream.Write(buffer, 0, buffer.Length);
                     }
@@ -417,7 +419,7 @@ namespace Lab06
                 }
             }
 
-            broadcast($"m=================\nm\nmTạo game mới...\nmChờ người chơi tham gia...\n@@@Newgame!@@@");
+            broadcast($"m\nm━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nmTạo game mới... Chờ người chơi tham gia...\n@@@Newgame!@@@");
             lock (_lock)
             {
                 scoreBoard = scoreBoard.ToDictionary(p => p.Key, p => 0);
