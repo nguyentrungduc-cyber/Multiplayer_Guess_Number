@@ -295,8 +295,22 @@ namespace Lab06
                 recvBuffer.Clear();
                 recvBuffer.Append(accumulated.Substring(lastNewline + 1));
 
-                var dataList = completePart.Split(new String[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                var dataListRaw = completePart.Split(new String[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
                 bool shouldBreak = false;
+
+                // FIX RACE CONDITION: khi server gửi cả dòng chat ("m...") và lệnh điều khiển
+                // ("@@@Nextround!@@@...") trong CÙNG 1 gói tin, xử lý tuần tự theo thứ tự gốc sẽ
+                // hiện chữ "Round X: Đoán một số..." TRƯỚC khi nút Submit/answer kịp Enable (2 lệnh
+                // Invoke() riêng biệt). Giữa 2 Invoke đó, UI thread có thể xử lý luôn cú click chuột
+                // đang chờ sẵn trong hàng đợi -> click "rơi" vào đúng lúc nút còn disable -> bị nuốt
+                // hoàn toàn, không lỗi, không log gì (đúng hiện tượng "bấm Submit không nhận").
+                //
+                // Fix: ưu tiên xử lý các dòng lệnh điều khiển (bắt đầu bằng "@@@" hoặc "\t") TRƯỚC,
+                // để UI (bật nút, set range...) sẵn sàng ngay, rồi mới hiện dòng chat text sau.
+                var dataList = dataListRaw
+                    .OrderByDescending(d => d.Length > 0 && (d[0] == '\t' || d.StartsWith("@@@")))
+                    .ToArray();
+
                 foreach (String data in dataList)
                 {
                     if (data.Length == 0) continue;
