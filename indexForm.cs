@@ -45,6 +45,12 @@ namespace Lab06
         // Xử lý nút "Tham Gia" (Dành cho Client)
         private void btnClient_Click(object sender, EventArgs e)
         {
+            // Sync Guna2 fields → hidden TextBoxes mà backend đọc
+            joinIP.Text   = joinIPBox.Text;
+            joinPort.Text = joinPortBox.Text;
+            if (!string.IsNullOrWhiteSpace(joinUsername.Text))
+                joinUsername.Text = joinUsername.Text; // đã là field chung
+
             this.Hide();
             if (serverForm != null)
             {
@@ -65,6 +71,7 @@ namespace Lab06
         // Xử lý nút "Tạo Game" (Khởi động Server)
         private void btnServer_Click(object sender, EventArgs e)
         {
+            hostPort.Text = hostPortBox.Text;
             btnServer.Enabled = false; 
             thread = new Thread(serverThread);
             thread.Start();

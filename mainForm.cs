@@ -128,7 +128,16 @@ namespace Lab06
             timeLeft--;
             if (timeLeft > -1)
             {
-                timerCnt.Text = timeLeft.ToString();
+                timerCnt.Text = timeLeft.ToString("D2");
+
+                // Đổi màu timer: xanh → vàng (≤7s) → đỏ (≤3s)
+                if (timeLeft <= 3)
+                    timerCnt.ForeColor = System.Drawing.Color.FromArgb(255, 80, 80);
+                else if (timeLeft <= 7)
+                    timerCnt.ForeColor = System.Drawing.Color.FromArgb(255, 183, 77);
+                else
+                    timerCnt.ForeColor = System.Drawing.Color.FromArgb(99, 202, 183);
+
                 if (timeLeft == 0)
                 {
                     btnSubmit.Enabled = btnAutoplayWholeGame.Enabled = btnAutoPlaySingleTurn.Enabled = answer.Enabled = label3.Enabled = label4.Enabled = range.Enabled = ansNumber.Enabled = false;
@@ -147,7 +156,8 @@ namespace Lab06
             }
             else
             {
-                timerCnt.Text = "X";
+                timerCnt.Text      = "--";
+                timerCnt.ForeColor = System.Drawing.Color.FromArgb(80, 80, 110);
                 timer.Stop();
             }
         }
@@ -162,7 +172,10 @@ namespace Lab06
 
         private void btnReady_Click(object sender, EventArgs e)
         {
-            btnReady.Enabled = false;
+            btnReady.Enabled   = false;
+            btnReady.BackColor = System.Drawing.Color.FromArgb(40, 40, 60);
+            btnReady.ForeColor = System.Drawing.Color.FromArgb(100, 100, 130);
+            btnReady.Text      = "✅  Đã sẵn sàng";
             send("@@@Ready!@@@");
         }
 
@@ -327,7 +340,27 @@ namespace Lab06
                     if (data[0] == 'm')
                         conversation.Invoke(new MethodInvoker(delegate ()
                         {
-                            conversation.AppendText($"{data.Substring(1)}\n");
+                            string msg = data.Substring(1);
+                            // Màu theo loại thông báo
+                            System.Drawing.Color color;
+                            if (msg.StartsWith("🏆") || msg.StartsWith("✅"))
+                                color = System.Drawing.Color.FromArgb(99, 202, 183);  // Xanh ngọc — đoán đúng
+                            else if (msg.StartsWith("❌") || msg.StartsWith("⚠️"))
+                                color = System.Drawing.Color.FromArgb(255, 100, 100); // Đỏ — đoán sai
+                            else if (msg.StartsWith("🎮") || msg.StartsWith("━"))
+                                color = System.Drawing.Color.FromArgb(255, 183, 77);  // Vàng — round mới
+                            else if (msg.StartsWith("🏁") || msg.StartsWith("👑") || msg.StartsWith("🥇") || msg.StartsWith("📊"))
+                                color = System.Drawing.Color.FromArgb(200, 160, 255); // Tím — kết game
+                            else if (msg.StartsWith("⏱") || msg.StartsWith("⏳"))
+                                color = System.Drawing.Color.FromArgb(150, 150, 180); // Xám — hệ thống
+                            else
+                                color = System.Drawing.Color.FromArgb(210, 210, 230); // Trắng xám — mặc định
+
+                            conversation.SelectionStart  = conversation.TextLength;
+                            conversation.SelectionLength = 0;
+                            conversation.SelectionColor  = color;
+                            conversation.AppendText($"{msg}\n");
+                            conversation.SelectionColor  = conversation.ForeColor;
                             conversation.ScrollToCaret();
                         }));
                     else if (data[0] == '\t')
@@ -377,15 +410,16 @@ namespace Lab06
                         timeLeft = int.Parse(rand[0]);
                         this.Invoke(new MethodInvoker(delegate ()
                         {
-                            timerCnt.Text = timeLeft.ToString();
+                            timerCnt.Text      = timeLeft.ToString("D2");
+                            timerCnt.ForeColor = System.Drawing.Color.FromArgb(99, 202, 183);
                             timer.Start();
                         }));
-                    }
-                    else if (!isServer && data == "@@@Newgame!@@@")
+                    }\n                    else if (!isServer && data == \"@@@Newgame!@@@\")
                     {
                         this.Invoke(new MethodInvoker(delegate ()
                         {
-                            btnReady.Enabled = true;
+                            btnReady.Enabled  = true;
+                            btnReady.BackColor = System.Drawing.Color.FromArgb(99, 202, 183);
                             btnSubmit.Enabled = btnAutoplayWholeGame.Enabled = btnAutoPlaySingleTurn.Enabled = answer.Enabled = false;
                         }));
                         isIngame = isAuto = false;
