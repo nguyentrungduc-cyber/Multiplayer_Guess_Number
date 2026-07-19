@@ -61,12 +61,17 @@ Dự án đã được tích hợp thêm các tính năng nâng cao sau nhằm t
 ---
 
 ## 📸 Giao diện ứng dụng
-*(Bạn có thể thay thế các link ảnh dưới đây bằng ảnh chụp màn hình thực tế của ứng dụng)*
+
+> 💡 **Ghi chú:** Chụp màn hình thực tế và thay thế vào đây sau khi chạy thử ứng dụng.
 
 | Giao diện Server | Giao diện Client |
 | :---: | :---: |
-| <img src="https://via.placeholder.com/400x250.png?text=Server+GUI" alt="Server UI" width="100%"> | <img src="https://via.placeholder.com/400x250.png?text=Client+GUI" alt="Client UI" width="100%"> |
+| *(Chưa có ảnh — xem hướng dẫn bên dưới để chạy thử)* | *(Chưa có ảnh — xem hướng dẫn bên dưới để chạy thử)* |
 | *Hiển thị Log, trạng thái, người chơi online* | *Nhập số, đồng hồ cooldown 3s, Auto-play* |
+
+<!-- Để thêm ảnh: chụp màn hình → upload lên repo → thay đường dẫn bên dưới
+| <img src="docs/server-screenshot.png" alt="Server UI" width="100%"> | <img src="docs/client-screenshot.png" alt="Client UI" width="100%"> |
+-->
 
 ---
 
