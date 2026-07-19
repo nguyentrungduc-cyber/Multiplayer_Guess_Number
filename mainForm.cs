@@ -180,7 +180,7 @@ namespace Lab06
             {
                 // Người dùng bấm Submit ngay lúc/sau khi hết giờ. Trước đây sẽ im lặng bỏ qua
                 // khiến người chơi tưởng bị bug. Giờ báo rõ lý do để họ biết cần bấm nhanh hơn.
-                conversation.AppendText("[Hệ thống] Đã hết giờ, không thể gửi đáp án cho round này.\n");
+                conversation.AppendText("⏱ Đã hết giờ, không thể gửi đáp án cho round này.\n");
                 conversation.ScrollToCaret();
                 return;
             }
@@ -189,7 +189,7 @@ namespace Lab06
             {
                 // Đang trong thời gian cooldown chống spam (3 giây/lần), báo cho người chơi biết còn phải chờ.
                 int waitMore = 3 - (lastSubmitTime - timeLeft);
-                conversation.AppendText($"[Hệ thống] Vui lòng chờ thêm ~{waitMore}s trước khi gửi đáp án tiếp theo.\n");
+                conversation.AppendText($"⏳ Vui lòng chờ thêm ~{waitMore}s trước khi gửi đáp án tiếp theo.\n");
                 conversation.ScrollToCaret();
                 return;
             }

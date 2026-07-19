@@ -302,7 +302,7 @@ namespace Lab06
                     }
                     else if (data == "@@@Ready!@@@")
                     {
-                        broadcast($"m>>> {username} đã sẵn sàng!");
+                        broadcast($"m✋ {username} đã sẵn sàng!");
                         lock (_lock) readyPlayers.Add(username, true);
                         readyCheck();
                     }
@@ -323,10 +323,10 @@ namespace Lab06
             }
             else
             {
-                broadcast($"m>>> {username} đã thoát khỏi game");
+                broadcast($"m🚪 {username} đã rời khỏi phòng");
                 if (clientsList.Count == 1)
                 {
-                    broadcast($"m>>> Tất cả người chơi đã thoát khỏi game");
+                    broadcast($"m💨 Tất cả người chơi đã rời phòng");
                     if (ingame)
                     {
                         ingame = false;
@@ -362,7 +362,7 @@ namespace Lab06
             }
             if (shouldStart)
             {
-                broadcast($"mHiện có {readyCount} người chơi");
+                broadcast($"m👥 {readyCount} người chơi đã sẵn sàng — Bắt đầu game!");
                 (new Thread(roundStart)).Start();
             }
         }
