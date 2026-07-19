@@ -285,6 +285,7 @@
             this.btnSubmit.Size = new System.Drawing.Size(81, 35);
             this.btnSubmit.TabIndex = 20;
             this.btnSubmit.Text = "Submit";
+            this.btnSubmit.Click += new System.EventHandler(this.btnSubmit_Click);
             // 
             // mainForm
             // 
