@@ -106,11 +106,21 @@ namespace Lab06
             thread.Start(client);
         }
 
+        private readonly object sendLock = new object();
+
         private void send(String message)
         {
-            NetworkStream stream = client.GetStream();
-            byte[] buffer = Encoding.UTF8.GetBytes($"{message}\n");
-            stream.Write(buffer, 0, buffer.Length);
+            // FIX: submit() tạo 1 Thread mới riêng cho mỗi lần gửi (new Thread(() => send(...))).
+            // Nếu người chơi bấm Submit nhiều lần liên tiếp nhanh, nhiều Thread có thể cùng lúc
+            // ghi vào chung 1 NetworkStream -> dữ liệu bị ghi chồng/lẫn lộn byte (interleaving),
+            // server nhận được gói tin hỏng, parse sai/không nhận diện được số đã gửi dù đúng đáp án.
+            // Thêm lock để đảm bảo tại 1 thời điểm chỉ có 1 thread được ghi vào stream.
+            lock (sendLock)
+            {
+                NetworkStream stream = client.GetStream();
+                byte[] buffer = Encoding.UTF8.GetBytes($"{message}\n");
+                stream.Write(buffer, 0, buffer.Length);
+            }
         }
 
         private void timer_Tick(object sender, EventArgs e)
