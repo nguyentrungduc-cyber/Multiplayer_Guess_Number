@@ -253,7 +253,7 @@
             // 
             this.answer.BorderRadius = 23;
             this.answer.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.answer.DefaultText = "Nhập đáp án...";
+            this.answer.DefaultText = "";
             this.answer.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
             this.answer.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
             this.answer.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
@@ -265,7 +265,7 @@
             this.answer.Margin = new System.Windows.Forms.Padding(4);
             this.answer.Name = "answer";
             this.answer.PasswordChar = '\0';
-            this.answer.PlaceholderText = "";
+            this.answer.PlaceholderText = "Nhập đáp án...";
             this.answer.SelectedText = "";
             this.answer.Size = new System.Drawing.Size(138, 36);
             this.answer.TabIndex = 19;
