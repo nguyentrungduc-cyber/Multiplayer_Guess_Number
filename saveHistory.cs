@@ -94,37 +94,38 @@ namespace Lab06
 
         private void btnSaveFile_Click(object sender, EventArgs e)
         {
-            using var dlg = new SaveFileDialog
+            using (var dlg = new SaveFileDialog
             {
-                Title            = "Lưu lịch sử game",
-                Filter           = "Text file (*.txt)|*.txt|Tất cả|*.*",
-                FileName         = $"game_history_{DateTime.Now:yyyyMMdd_HHmm}.txt",
-                DefaultExt       = "txt",
-                OverwritePrompt  = true,
-            };
-
-            if (dlg.ShowDialog(this) != DialogResult.OK) return;
-
-            try
+                Title           = "Lưu lịch sử game",
+                Filter          = "Text file (*.txt)|*.txt|Tất cả|*.*",
+                FileName        = $"game_history_{DateTime.Now:yyyyMMdd_HHmm}.txt",
+                DefaultExt      = "txt",
+                OverwritePrompt = true,
+            })
             {
-                File.WriteAllText(dlg.FileName, _text, System.Text.Encoding.UTF8);
-                btnSaveFile.Text      = "✅  Đã lưu!";
-                btnSaveFile.BackColor = Color.FromArgb(75, 175, 158);
+                if (dlg.ShowDialog(this) != DialogResult.OK) return;
 
-                var t = new System.Windows.Forms.Timer { Interval = 1500 };
-                t.Tick += (s, _) =>
+                try
                 {
-                    btnSaveFile.Text      = "💾  Lưu file .txt";
-                    btnSaveFile.BackColor = Color.FromArgb(255, 183, 77);
-                    t.Stop();
-                    t.Dispose();
-                };
-                t.Start();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Không thể lưu file: {ex.Message}", "Lỗi",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    File.WriteAllText(dlg.FileName, _text, System.Text.Encoding.UTF8);
+                    btnSaveFile.Text      = "✅  Đã lưu!";
+                    btnSaveFile.BackColor = Color.FromArgb(75, 175, 158);
+
+                    var t = new System.Windows.Forms.Timer { Interval = 1500 };
+                    t.Tick += (s, _) =>
+                    {
+                        btnSaveFile.Text      = "💾  Lưu file .txt";
+                        btnSaveFile.BackColor = Color.FromArgb(255, 183, 77);
+                        t.Stop();
+                        t.Dispose();
+                    };
+                    t.Start();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Không thể lưu file: {ex.Message}", "Lỗi",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 

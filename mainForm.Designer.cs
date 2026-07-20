@@ -131,7 +131,7 @@ namespace Lab06
             this.message.ForeColor    = System.Drawing.Color.White;
             this.message.Location     = new System.Drawing.Point(10, 10);
             this.message.Name         = "message";
-            this.message.PlaceholderText = "Nhập tin nhắn...";
+            this.message.Text = "";
             this.message.Size         = new System.Drawing.Size(540, 22);
             this.message.TabIndex     = 1;
             this.message.KeyDown     += new System.Windows.Forms.KeyEventHandler(this.message_KeyDown);
