@@ -254,7 +254,7 @@ namespace Lab06
             this.btnServer.Name      = "btnServer";
             this.btnServer.Size      = new System.Drawing.Size(300, 44);
             this.btnServer.TabIndex  = 6;
-            this.btnServer.Text      = "🖥️  Tạo phòng & bắt đầu";
+            this.btnServer.Text      = "🖥️  Tạo phòng && bắt đầu";
             this.btnServer.Click    += new System.EventHandler(this.btnServer_Click);
 
             // ── Ẩn textbox cũ (giữ để code backend dùng) ───
