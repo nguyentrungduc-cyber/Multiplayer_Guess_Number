@@ -17,6 +17,8 @@ namespace Lab06
             this.components           = new System.ComponentModel.Container();
             this.btnSend              = new System.Windows.Forms.Button();
             this.btnClear             = new System.Windows.Forms.Button();
+            this.btnPauseResume       = new System.Windows.Forms.Button();
+            this.btnStopServer        = new System.Windows.Forms.Button();
             this.message              = new System.Windows.Forms.TextBox();
             this.conversation         = new System.Windows.Forms.RichTextBox();
             this.btnReady             = new System.Windows.Forms.Button();
@@ -339,6 +341,40 @@ namespace Lab06
             this.btnClear.Click       += new System.EventHandler(this.btnClear_Click);
             this.pnlSide.Controls.Add(this.btnClear);
 
+            // ── Nút Tạm dừng / Tiếp tục (chỉ hiện với Server) ──
+            this.btnPauseResume.BackColor = System.Drawing.Color.FromArgb(255, 183, 77);
+            this.btnPauseResume.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnPauseResume.FlatAppearance.BorderSize = 0;
+            this.btnPauseResume.Font      = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            this.btnPauseResume.ForeColor = System.Drawing.Color.FromArgb(18, 18, 30);
+            this.btnPauseResume.Location  = new System.Drawing.Point(16, 506);
+            this.btnPauseResume.Name      = "btnPauseResume";
+            this.btnPauseResume.Size      = new System.Drawing.Size(300, 36);
+            this.btnPauseResume.TabIndex  = 9;
+            this.btnPauseResume.TabStop   = false;
+            this.btnPauseResume.Text      = "⏸  Tạm dừng ván chơi";
+            this.btnPauseResume.UseVisualStyleBackColor = false;
+            this.btnPauseResume.Visible   = false;
+            this.btnPauseResume.Click    += new System.EventHandler(this.btnPauseResume_Click);
+            this.pnlSide.Controls.Add(this.btnPauseResume);
+
+            // ── Nút Dừng Server ngay lập tức (chỉ hiện với Server) ──
+            this.btnStopServer.BackColor = System.Drawing.Color.FromArgb(220, 70, 70);
+            this.btnStopServer.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnStopServer.FlatAppearance.BorderSize = 0;
+            this.btnStopServer.Font      = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            this.btnStopServer.ForeColor = System.Drawing.Color.White;
+            this.btnStopServer.Location  = new System.Drawing.Point(16, 546);
+            this.btnStopServer.Name      = "btnStopServer";
+            this.btnStopServer.Size      = new System.Drawing.Size(300, 36);
+            this.btnStopServer.TabIndex  = 10;
+            this.btnStopServer.TabStop   = false;
+            this.btnStopServer.Text      = "⏹  Dừng Server ngay";
+            this.btnStopServer.UseVisualStyleBackColor = false;
+            this.btnStopServer.Visible   = false;
+            this.btnStopServer.Click    += new System.EventHandler(this.btnStopServer_Click);
+            this.pnlSide.Controls.Add(this.btnStopServer);
+
             // ── Add top-level controls ───────────────────────
             this.Controls.Add(this.pnlTop);
             this.Controls.Add(this.pnlChat);
@@ -352,6 +388,8 @@ namespace Lab06
 
         private System.Windows.Forms.Button btnSend;
         private System.Windows.Forms.Button btnClear;
+        private System.Windows.Forms.Button btnPauseResume;
+        private System.Windows.Forms.Button btnStopServer;
         private System.Windows.Forms.TextBox message;
         public System.Windows.Forms.RichTextBox conversation;
         private System.Windows.Forms.Button btnReady;
