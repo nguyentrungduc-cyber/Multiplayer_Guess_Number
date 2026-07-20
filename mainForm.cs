@@ -234,7 +234,12 @@ namespace Lab06
 
         private void playerNum_Click(object sender, EventArgs e)
         {
-
+            // Click vào label số người → hiện chi tiết dạng tooltip
+            string info = string.IsNullOrWhiteSpace(playerNum.Text)
+                ? "Chưa có người chơi nào tham gia."
+                : $"Phòng hiện tại:\n{playerNum.Text}";
+            MessageBox.Show(info, "Thông tin phòng",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void btnSubmit_Click(object sender, EventArgs e)

@@ -45,11 +45,32 @@ namespace Lab06
         // Xử lý nút "Tham Gia" (Dành cho Client)
         private void btnClient_Click(object sender, EventArgs e)
         {
+            // Validate
+            if (string.IsNullOrWhiteSpace(joinUsername.Text))
+            {
+                MessageBox.Show("Vui lòng nhập tên người chơi.", "Thiếu thông tin",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                joinUsername.Focus();
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(joinIPBox.Text))
+            {
+                MessageBox.Show("Vui lòng nhập địa chỉ IP server.", "Thiếu thông tin",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                joinIPBox.Focus();
+                return;
+            }
+            if (!int.TryParse(joinPortBox.Text, out int port) || port < 1 || port > 65535)
+            {
+                MessageBox.Show("Port không hợp lệ (1 – 65535).", "Thiếu thông tin",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                joinPortBox.Focus();
+                return;
+            }
+
             // Sync Guna2 fields → hidden TextBoxes mà backend đọc
             joinIP.Text   = joinIPBox.Text;
             joinPort.Text = joinPortBox.Text;
-            if (!string.IsNullOrWhiteSpace(joinUsername.Text))
-                joinUsername.Text = joinUsername.Text; // đã là field chung
 
             this.Hide();
             if (serverForm != null)
@@ -71,8 +92,15 @@ namespace Lab06
         // Xử lý nút "Tạo Game" (Khởi động Server)
         private void btnServer_Click(object sender, EventArgs e)
         {
-            hostPort.Text = hostPortBox.Text;
-            btnServer.Enabled = false; 
+            if (!int.TryParse(hostPortBox.Text, out int port) || port < 1 || port > 65535)
+            {
+                MessageBox.Show("Port không hợp lệ (1 – 65535).", "Thiếu thông tin",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                hostPortBox.Focus();
+                return;
+            }
+            hostPort.Text     = hostPortBox.Text;
+            btnServer.Enabled = false;
             thread = new Thread(serverThread);
             thread.Start();
         }

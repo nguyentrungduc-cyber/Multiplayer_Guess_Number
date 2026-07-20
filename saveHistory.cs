@@ -1,77 +1,133 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+using System;
 using System.Drawing;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using System.IO;
 using System.Windows.Forms;
-using System.Windows.Input;
-using System.Windows.Shapes;
 
 namespace Lab06
 {
     public partial class saveHistory : Form
     {
-        private string text;
+        private readonly string _text;
+
+        // Màu theo loại dòng — nhất quán với mainForm
+        private static readonly Color C_Default  = Color.FromArgb(210, 210, 230);
+        private static readonly Color C_Correct  = Color.FromArgb(99, 202, 183);
+        private static readonly Color C_Wrong    = Color.FromArgb(255, 100, 100);
+        private static readonly Color C_Round    = Color.FromArgb(255, 183, 77);
+        private static readonly Color C_End      = Color.FromArgb(200, 160, 255);
+        private static readonly Color C_System   = Color.FromArgb(150, 150, 180);
+        private static readonly Color C_Divider  = Color.FromArgb(70, 70, 100);
 
         public saveHistory(string text)
         {
             InitializeComponent();
-            this.text = text;
-            webBrowser1.ScriptErrorsSuppressed = true;
+            _text = text;
         }
 
         private void saveHistory_Load(object sender, EventArgs e)
         {
-            webBrowser1.Navigate("https://ctxt.io/");
+            RenderHistory();
         }
 
-        private void webBrowser1_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+        // Render lịch sử với màu sắc nhất quán với mainForm
+        private void RenderHistory()
         {
-            if (webBrowser1.Url.ToString() == "https://ctxt.io/")
+            rtbHistory.Clear();
+
+            string[] lines = _text.Split('\n');
+            foreach (string line in lines)
             {
-                HtmlElement editable = getData("div", "className", "editable");
-                if (editable == null)
-                {
-                    MessageBox.Show("Không tìm thấy khung soạn thảo trên trang, không thể lưu lịch sử.");
-                    return;
-                }
-                editable.InnerHtml = "";
-                string[] lines = text.Split('\n');
-                foreach (string line in lines)
-                {
-                    // Escape HTML để tránh HTML Injection: nếu nội dung chat của người chơi
-                    // chứa các ký tự như <, >, & (VD: gõ thẻ HTML/script), trước đây sẽ bị
-                    // chèn thẳng vào InnerHtml và có thể phá layout hoặc chèn mã tùy ý vào trang ctxt.io.
-                    string safeLine = WebUtility.HtmlEncode(line);
-                    editable.InnerHtml += $"{safeLine}<br>";
-                }
-                var selectEl = getData("select", "className", "select");
-                selectEl?.SetAttribute("value", "1d");
-                getData("input", "className", "button")?.InvokeMember("click");
+                if (string.IsNullOrEmpty(line)) continue;
+
+                Color color;
+                if (line.StartsWith("🏆") || line.StartsWith("✅"))
+                    color = C_Correct;
+                else if (line.StartsWith("❌") || line.StartsWith("⚠️"))
+                    color = C_Wrong;
+                else if (line.StartsWith("🎮") || line.StartsWith("━"))
+                    color = C_Round;
+                else if (line.StartsWith("🏁") || line.StartsWith("👑") || line.StartsWith("🥇") || line.StartsWith("📊"))
+                    color = C_End;
+                else if (line.StartsWith("⏱") || line.StartsWith("⏳") || line.StartsWith("👥") || line.StartsWith("✋") || line.StartsWith("🚪") || line.StartsWith("💨"))
+                    color = C_System;
+                else if (line.StartsWith("━"))
+                    color = C_Divider;
+                else
+                    color = C_Default;
+
+                rtbHistory.SelectionStart  = rtbHistory.TextLength;
+                rtbHistory.SelectionLength = 0;
+                rtbHistory.SelectionColor  = color;
+                rtbHistory.AppendText(line + "\n");
             }
-            else
+
+            rtbHistory.SelectionColor = C_Default;
+            rtbHistory.SelectionStart = 0;
+            rtbHistory.ScrollToCaret();
+        }
+
+        private void btnCopy_Click(object sender, EventArgs e)
+        {
+            try
             {
-                string url = webBrowser1.Url.ToString();
-                MessageBox.Show($"Lịch sử trò chơi được lưu tại:\n{url}");
+                Clipboard.SetText(_text);
+                btnCopy.Text      = "✅  Đã sao chép!";
+                btnCopy.BackColor = Color.FromArgb(75, 175, 158);
+
+                // Reset lại sau 1.5 giây
+                var t = new System.Windows.Forms.Timer { Interval = 1500 };
+                t.Tick += (s, _) =>
+                {
+                    btnCopy.Text      = "📋  Sao chép";
+                    btnCopy.BackColor = Color.FromArgb(99, 202, 183);
+                    t.Stop();
+                    t.Dispose();
+                };
+                t.Start();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Không thể sao chép: {ex.Message}", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private HtmlElement getData(string tag, string att, string attVal)
+        private void btnSaveFile_Click(object sender, EventArgs e)
         {
-            HtmlElementCollection elements = webBrowser1.Document.GetElementsByTagName(tag);
-            foreach (HtmlElement element in elements)
+            using var dlg = new SaveFileDialog
             {
-                if (element.GetAttribute(att).Equals(attVal))
+                Title            = "Lưu lịch sử game",
+                Filter           = "Text file (*.txt)|*.txt|Tất cả|*.*",
+                FileName         = $"game_history_{DateTime.Now:yyyyMMdd_HHmm}.txt",
+                DefaultExt       = "txt",
+                OverwritePrompt  = true,
+            };
+
+            if (dlg.ShowDialog(this) != DialogResult.OK) return;
+
+            try
+            {
+                File.WriteAllText(dlg.FileName, _text, System.Text.Encoding.UTF8);
+                btnSaveFile.Text      = "✅  Đã lưu!";
+                btnSaveFile.BackColor = Color.FromArgb(75, 175, 158);
+
+                var t = new System.Windows.Forms.Timer { Interval = 1500 };
+                t.Tick += (s, _) =>
                 {
-                    return element;
-                }
+                    btnSaveFile.Text      = "💾  Lưu file .txt";
+                    btnSaveFile.BackColor = Color.FromArgb(255, 183, 77);
+                    t.Stop();
+                    t.Dispose();
+                };
+                t.Start();
             }
-            return null;
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Không thể lưu file: {ex.Message}", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
+
+        private void btnClose_Click(object sender, EventArgs e) => Close();
     }
 }
