@@ -166,17 +166,18 @@ namespace Lab06
             this.label2.AutoSize  = false;
             this.label2.Font      = new System.Drawing.Font("Segoe UI", 9F);
             this.label2.ForeColor = System.Drawing.Color.FromArgb(200, 200, 220);
-            this.label2.Location  = new System.Drawing.Point(20, 20);
+            this.label2.Location  = new System.Drawing.Point(20, 16);
             this.label2.Name      = "label2";
-            this.label2.Size      = new System.Drawing.Size(292, 18);
+            this.label2.Size      = new System.Drawing.Size(292, 20);
             this.label2.Text      = "⏱  Thời gian còn lại";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.pnlSide.Controls.Add(this.label2);
 
-            this.timerCnt.Font      = new System.Drawing.Font("Segoe UI", 56F, System.Drawing.FontStyle.Bold);
+            this.timerCnt.Font      = new System.Drawing.Font("Segoe UI", 52F, System.Drawing.FontStyle.Bold);
             this.timerCnt.ForeColor = System.Drawing.Color.FromArgb(99, 202, 183);
+            this.timerCnt.Location  = new System.Drawing.Point(20, 36);
             this.timerCnt.Name      = "timerCnt";
-            this.timerCnt.Size      = new System.Drawing.Size(292, 100);
+            this.timerCnt.Size      = new System.Drawing.Size(292, 96);
             this.timerCnt.TabIndex  = 0;
             this.timerCnt.Text      = "--";
             this.timerCnt.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
