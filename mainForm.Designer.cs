@@ -87,7 +87,7 @@ namespace Lab06
             this.playerNum.AutoSize  = false;
             this.playerNum.Dock      = System.Windows.Forms.DockStyle.Fill;
             this.playerNum.Font      = new System.Drawing.Font("Segoe UI", 9F);
-            this.playerNum.ForeColor = System.Drawing.Color.FromArgb(150, 150, 180);
+            this.playerNum.ForeColor = System.Drawing.Color.FromArgb(190, 190, 210);
             this.playerNum.Name      = "playerNum";
             this.playerNum.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.playerNum.Padding   = new System.Windows.Forms.Padding(0, 0, 16, 0);
@@ -165,7 +165,7 @@ namespace Lab06
             // ── Timer display ───────────────────────────────
             this.label2.AutoSize  = false;
             this.label2.Font      = new System.Drawing.Font("Segoe UI", 9F);
-            this.label2.ForeColor = System.Drawing.Color.FromArgb(150, 150, 180);
+            this.label2.ForeColor = System.Drawing.Color.FromArgb(200, 200, 220);
             this.label2.Location  = new System.Drawing.Point(20, 20);
             this.label2.Name      = "label2";
             this.label2.Size      = new System.Drawing.Size(292, 18);
@@ -175,7 +175,6 @@ namespace Lab06
 
             this.timerCnt.Font      = new System.Drawing.Font("Segoe UI", 56F, System.Drawing.FontStyle.Bold);
             this.timerCnt.ForeColor = System.Drawing.Color.FromArgb(99, 202, 183);
-            this.timerCnt.Location  = new System.Drawing.Point(20, 38);
             this.timerCnt.Name      = "timerCnt";
             this.timerCnt.Size      = new System.Drawing.Size(292, 100);
             this.timerCnt.TabIndex  = 0;
@@ -191,9 +190,8 @@ namespace Lab06
             this.pnlInfo.TabIndex   = 0;
 
             this.label3.AutoSize  = false;
-            this.label3.Enabled   = false;
             this.label3.Font      = new System.Drawing.Font("Segoe UI", 9F);
-            this.label3.ForeColor = System.Drawing.Color.FromArgb(150, 150, 180);
+            this.label3.ForeColor = System.Drawing.Color.FromArgb(190, 190, 210);
             this.label3.Location  = new System.Drawing.Point(12, 10);
             this.label3.Name      = "label3";
             this.label3.Size      = new System.Drawing.Size(80, 18);
@@ -201,7 +199,6 @@ namespace Lab06
             this.pnlInfo.Controls.Add(this.label3);
 
             this.range.AutoSize  = false;
-            this.range.Enabled   = false;
             this.range.Font      = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.range.ForeColor = System.Drawing.Color.FromArgb(99, 202, 183);
             this.range.Location  = new System.Drawing.Point(92, 9);
@@ -211,9 +208,8 @@ namespace Lab06
             this.pnlInfo.Controls.Add(this.range);
 
             this.label4.AutoSize  = false;
-            this.label4.Enabled   = false;
             this.label4.Font      = new System.Drawing.Font("Segoe UI", 9F);
-            this.label4.ForeColor = System.Drawing.Color.FromArgb(150, 150, 180);
+            this.label4.ForeColor = System.Drawing.Color.FromArgb(190, 190, 210);
             this.label4.Location  = new System.Drawing.Point(12, 40);
             this.label4.Name      = "label4";
             this.label4.Size      = new System.Drawing.Size(80, 18);
@@ -221,7 +217,6 @@ namespace Lab06
             this.pnlInfo.Controls.Add(this.label4);
 
             this.ansNumber.AutoSize  = false;
-            this.ansNumber.Enabled   = false;
             this.ansNumber.Font      = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.ansNumber.ForeColor = System.Drawing.Color.FromArgb(255, 183, 77);
             this.ansNumber.Location  = new System.Drawing.Point(92, 39);
