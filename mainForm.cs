@@ -419,7 +419,8 @@ namespace Lab06
                             timerCnt.ForeColor = System.Drawing.Color.FromArgb(99, 202, 183);
                             timer.Start();
                         }));
-                    }\n                    else if (!isServer && data == \"@@@Newgame!@@@\")
+                    }
+                    else if (!isServer && data == "@@@Newgame!@@@")
                     {
                         this.Invoke(new MethodInvoker(delegate ()
                         {
