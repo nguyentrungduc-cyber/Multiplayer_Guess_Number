@@ -80,6 +80,7 @@ namespace Lab06
                 btnReady.Enabled = btnSubmit.Enabled = btnAutoplayWholeGame.Enabled = btnAutoPlaySingleTurn.Enabled = btnClear.Enabled = false;
                 answer.BorderStyle = (System.Drawing.Drawing2D.DashStyle)BorderStyle.None;
                 btnPauseResume.Visible = btnStopServer.Visible = true;
+                btnPauseResume.Enabled = false; // Disable cho đến khi round thực sự bắt đầu
             }
             else if (ress[0] == "@@@Ingame!@@@")
             {
@@ -400,6 +401,7 @@ namespace Lab06
                         this.Invoke(new MethodInvoker(delegate ()
                         {
                             label3.Enabled = range.Enabled = true;
+                            if (isServer) btnPauseResume.Enabled = true; // Enable Pause khi round bắt đầu
                         }));
 
                         var rand = data.Substring(16).Split(new String[] { "\t" }, StringSplitOptions.RemoveEmptyEntries);
@@ -456,6 +458,7 @@ namespace Lab06
                         this.Invoke(new MethodInvoker(delegate ()
                         {
                             btnPauseResume.Text = "⏸  Tạm dừng ván chơi";
+                            btnPauseResume.Enabled = false; // Disable cho đến khi round tiếp theo bắt đầu
                         }));
                     }
                     else if (data == "@@@Exit!@@@")

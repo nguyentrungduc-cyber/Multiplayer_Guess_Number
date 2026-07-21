@@ -297,6 +297,12 @@ namespace Lab06
                     if (data.Length == 0) continue;
                     if (data[0] == 's')
                     {
+                        // Bug fix: không xử lý đoán số khi game đang tạm dừng
+                        if (isPaused)
+                        {
+                            broadcast($"m⏸ {username} đoán số nhưng game đang tạm dừng.");
+                            continue;
+                        }
                         lock (_lock)
                         {
                             if (correctPlayer == "" && timeupCount < readyPlayers.Count)
@@ -328,6 +334,8 @@ namespace Lab06
                     }
                     else if (data == "@@@Timeup!@@@")
                     {
+                        // Bug fix: bỏ qua Timeup từ client khi game đang pause
+                        if (isPaused) continue;
                         bool shouldTimeUp = false;
                         lock (_lock)
                         {
@@ -394,6 +402,12 @@ namespace Lab06
             }
             isPaused = !isPaused;
             actuallyToggled = true;
+            if (!isPaused)
+            {
+                // Resume: reset timeupCount để tránh đếm kép — client timer chạy lại
+                // từ đầu sau resume nên sẽ gửi Timeup mới, không nên cộng vào count cũ.
+                lock (_lock) { timeupCount = 0; }
+            }
             broadcast(isPaused ? "@@@Pause!@@@" : "@@@Resume!@@@");
             broadcast(isPaused ? "m⏸ Server đã tạm dừng ván chơi." : "m▶ Ván chơi đã tiếp tục.");
             return isPaused;
@@ -422,6 +436,8 @@ namespace Lab06
             ingame = false;
             isPaused = false;
             round = 0;
+            currentRound = 0; // Bug fix: reset currentRound tránh lần chơi sau bắt đầu sai round
+            timeupCount = 0;  // Bug fix: reset timeupCount tránh sót count từ game trước
 
             lock (_lock)
             {
