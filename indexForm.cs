@@ -221,7 +221,7 @@ namespace Lab06
             btnServer.Invoke(new MethodInvoker(delegate ()
             {
                 btnServer.Enabled = true;
-                btnServer.ResetText();
+                btnServer.Text = "🖥️  Tạo phòng && bắt đầu";
             }));
         }
 
