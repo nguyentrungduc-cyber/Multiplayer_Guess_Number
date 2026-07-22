@@ -28,6 +28,9 @@ namespace Lab06
         private Random rand; // Đối tượng dùng để sinh số ngẫu nhiên
         private bool ingame = false; // Cờ đánh dấu xem game đã bắt đầu chưa
         private bool isPaused = false; // Cờ đánh dấu game đang bị tạm dừng
+        // Gate chặn thật: Set()=chạy tiếp, Reset()=mọi Wait() bị block tới khi Set() lại.
+        // Dùng để chặn roundStart() chuyển sang round mới khi đang Paused.
+        private readonly ManualResetEventSlim pauseGate = new ManualResetEventSlim(true);
 
         private readonly object _lock = new object(); // Đối tượng dùng để khóa (lock) khi thao tác với dữ liệu dùng chung giữa các luồng, tránh xung đột.
 
@@ -225,6 +228,9 @@ namespace Lab06
         // Set số round cho mỗi game và khoảng số cần đoán
         private void roundStart()
         {
+            // Chặn thật: nếu đang Paused, block tại đây tới khi Resume mới cho chuyển round mới.
+            pauseGate.Wait();
+
             // Đợi 5 giây trước khi bắt đầu round mới để mọi người kịp chuẩn bị, nếu có người chơi nào chưa sẵn sàng thì vẫn có thể tham gia vào round này.
             Thread.Sleep(5000);
             // Reset lại biến đếm số người chơi đã hết giờ để chờ round mới
@@ -402,11 +408,16 @@ namespace Lab06
             }
             isPaused = !isPaused;
             actuallyToggled = true;
-            if (!isPaused)
+            if (isPaused)
+            {
+                pauseGate.Reset(); // Chặn mọi roundStart() đang/sắp chạy
+            }
+            else
             {
                 // Resume: reset timeupCount để tránh đếm kép — client timer chạy lại
                 // từ đầu sau resume nên sẽ gửi Timeup mới, không nên cộng vào count cũ.
                 lock (_lock) { timeupCount = 0; }
+                pauseGate.Set(); // Mở gate, cho phép roundStart() đang chờ chạy tiếp
             }
             broadcast(isPaused ? "@@@Pause!@@@" : "@@@Resume!@@@");
             broadcast(isPaused ? "m⏸ Server đã tạm dừng ván chơi." : "m▶ Ván chơi đã tiếp tục.");
@@ -435,6 +446,7 @@ namespace Lab06
 
             ingame = false;
             isPaused = false;
+            pauseGate.Set(); // Mở gate tránh treo thread roundStart() đang chờ nếu vừa pause
             round = 0;
             currentRound = 0; // Bug fix: reset currentRound tránh lần chơi sau bắt đầu sai round
             timeupCount = 0;  // Bug fix: reset timeupCount tránh sót count từ game trước
@@ -487,6 +499,8 @@ namespace Lab06
             if (ingame)
             {
                 ingame = false;
+                isPaused = false;
+                pauseGate.Set();
                 int highscore = int.MinValue;
                 lock (_lock)
                 {
