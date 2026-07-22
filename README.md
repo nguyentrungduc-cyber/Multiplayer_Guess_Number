@@ -35,6 +35,8 @@ Người đoán đúng và nhanh nhất sẽ giành chiến thắng vòng đó. 
 - **Tự động điều hành:** Tự quyết định số vòng chơi (tối thiểu 5 vòng). Thông báo kết quả và vòng mới tức thì đến toàn bộ người chơi.
 - **Báo cáo đám mây:** Khi đóng cửa sổ Server/Client, lịch sử trò chơi được tự động đẩy lên [ctxt.io](https://ctxt.io) để lưu trữ và chia sẻ.
 - **Tự khởi động lại vòng chờ:** Sau khi kết thúc game (đủ số round), Server tự reset điểm số và trạng thái Ready, quay về chờ người chơi mới sẵn sàng cho ván tiếp theo — không cần khởi động lại Server.
+- **Tạm dừng / Tiếp tục ván chơi:** Server có thể tạm dừng round đang diễn ra (chặn thật luồng chuyển round bằng gate, không chỉ dừng đồng hồ hiển thị) và tiếp tục lại đúng thời điểm đã dừng.
+- **Dừng Server ngay lập tức:** Ngắt kết nối toàn bộ Client, giải phóng cổng mạng ngay, không cần khởi động lại ứng dụng để tạo phòng mới trên cùng cổng đó.
 
 ### Phía Client
 - **Giao diện tương tác:** Cho phép nhập tên người chơi, số dự đoán và hiển thị log thông báo real-time từ Server (Vòng mới, người thắng, dải số hiện tại...).
