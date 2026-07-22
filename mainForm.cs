@@ -79,6 +79,8 @@ namespace Lab06
                 isServer = true;
                 btnReady.Enabled = btnSubmit.Enabled = btnAutoplayWholeGame.Enabled = btnAutoPlaySingleTurn.Enabled = btnClear.Enabled = false;
                 answer.BorderStyle = (System.Drawing.Drawing2D.DashStyle)BorderStyle.None;
+                btnPauseResume.Visible = btnStopServer.Visible = true;
+                btnPauseResume.Enabled = false; // Disable cho đến khi round thực sự bắt đầu
             }
             else if (ress[0] == "@@@Ingame!@@@")
             {
@@ -294,6 +296,24 @@ namespace Lab06
             conversation.Clear();
         }
 
+        // 2 nút này chỉ hiện với chính Server (isServer == true), gọi ngược lại các hàm
+        // xử lý thật nằm bên indexForm (nơi giữ toàn bộ trạng thái game: clientsList,
+        // ingame, scoreBoard...) thông qua tham chiếu "parent".
+        private void btnPauseResume_Click(object sender, EventArgs e)
+        {
+            bool isPausedNow = parent.TogglePause(out bool actuallyToggled);
+            if (!actuallyToggled) return; // Chưa ingame, không có gì thay đổi, giữ nguyên label
+
+            btnPauseResume.Text = isPausedNow
+                ? "▶  Tiếp tục ván chơi"
+                : "⏸  Tạm dừng ván chơi";
+        }
+
+        private void btnStopServer_Click(object sender, EventArgs e)
+        {
+            parent.StopServerNow();
+        }
+
 
         private void ReceiveData(TcpClient client)
         {
@@ -381,6 +401,7 @@ namespace Lab06
                         this.Invoke(new MethodInvoker(delegate ()
                         {
                             label3.Enabled = range.Enabled = true;
+                            if (isServer) btnPauseResume.Enabled = true; // Enable Pause khi round bắt đầu
                         }));
 
                         var rand = data.Substring(16).Split(new String[] { "\t" }, StringSplitOptions.RemoveEmptyEntries);
@@ -430,11 +451,52 @@ namespace Lab06
                         }));
                         isIngame = isAuto = false;
                     }
+                    else if (isServer && data == "@@@Newgame!@@@")
+                    {
+                        // Ván mới bắt đầu -> reset lại nhãn nút Pause về trạng thái ban đầu,
+                        // tránh còn giữ chữ "Tiếp tục" sót lại từ ván trước nếu Server từng pause.
+                        this.Invoke(new MethodInvoker(delegate ()
+                        {
+                            btnPauseResume.Text = "⏸  Tạm dừng ván chơi";
+                            btnPauseResume.Enabled = false; // Disable cho đến khi round tiếp theo bắt đầu
+                        }));
+                    }
                     else if (data == "@@@Exit!@@@")
                     {
                         closeWhenServerDown();
                         shouldBreak = true;
                         break;
+                    }
+                    else if (data == "@@@ServerStopped!@@@")
+                    {
+                        this.Invoke(new MethodInvoker(delegate ()
+                        {
+                            MessageBox.Show("Server đã bị dừng bởi chủ phòng.", "Thông báo",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }));
+                        closeWhenServerDown();
+                        shouldBreak = true;
+                        break;
+                    }
+                    else if (!isServer && data == "@@@Pause!@@@")
+                    {
+                        this.Invoke(new MethodInvoker(delegate ()
+                        {
+                            timer.Stop();
+                            btnSubmit.Enabled = btnAutoPlaySingleTurn.Enabled = btnAutoplayWholeGame.Enabled = answer.Enabled = false;
+                        }));
+                    }
+                    else if (!isServer && data == "@@@Resume!@@@")
+                    {
+                        this.Invoke(new MethodInvoker(delegate ()
+                        {
+                            if (isIngame && timeLeft > 0)
+                            {
+                                timer.Start();
+                                btnSubmit.Enabled = btnAutoPlaySingleTurn.Enabled = answer.Enabled = true;
+                                if (isAuto) btnAutoplayWholeGame.Enabled = true;
+                            }
+                        }));
                     }
                 }
                 if (shouldBreak) break;

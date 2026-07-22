@@ -27,6 +27,10 @@ namespace Lab06
         private String correctPlayer, time = "";
         private Random rand; // Đối tượng dùng để sinh số ngẫu nhiên
         private bool ingame = false; // Cờ đánh dấu xem game đã bắt đầu chưa
+        private bool isPaused = false; // Cờ đánh dấu game đang bị tạm dừng
+        // Gate chặn thật: Set()=chạy tiếp, Reset()=mọi Wait() bị block tới khi Set() lại.
+        // Dùng để chặn roundStart() chuyển sang round mới khi đang Paused.
+        private readonly ManualResetEventSlim pauseGate = new ManualResetEventSlim(true);
 
         private readonly object _lock = new object(); // Đối tượng dùng để khóa (lock) khi thao tác với dữ liệu dùng chung giữa các luồng, tránh xung đột.
 
@@ -217,13 +221,16 @@ namespace Lab06
             btnServer.Invoke(new MethodInvoker(delegate ()
             {
                 btnServer.Enabled = true;
-                btnServer.ResetText();
+                btnServer.Text = "🖥️  Tạo phòng && bắt đầu";
             }));
         }
 
         // Set số round cho mỗi game và khoảng số cần đoán
         private void roundStart()
         {
+            // Chặn thật: nếu đang Paused, block tại đây tới khi Resume mới cho chuyển round mới.
+            pauseGate.Wait();
+
             // Đợi 5 giây trước khi bắt đầu round mới để mọi người kịp chuẩn bị, nếu có người chơi nào chưa sẵn sàng thì vẫn có thể tham gia vào round này.
             Thread.Sleep(5000);
             // Reset lại biến đếm số người chơi đã hết giờ để chờ round mới
@@ -296,6 +303,12 @@ namespace Lab06
                     if (data.Length == 0) continue;
                     if (data[0] == 's')
                     {
+                        // Bug fix: không xử lý đoán số khi game đang tạm dừng
+                        if (isPaused)
+                        {
+                            broadcast($"m⏸ {username} đoán số nhưng game đang tạm dừng.");
+                            continue;
+                        }
                         lock (_lock)
                         {
                             if (correctPlayer == "" && timeupCount < readyPlayers.Count)
@@ -327,6 +340,8 @@ namespace Lab06
                     }
                     else if (data == "@@@Timeup!@@@")
                     {
+                        // Bug fix: bỏ qua Timeup từ client khi game đang pause
+                        if (isPaused) continue;
                         bool shouldTimeUp = false;
                         lock (_lock)
                         {
@@ -378,6 +393,83 @@ namespace Lab06
             }
         }
 
+        // Tạm dừng / Tiếp tục game hiện tại (chỉ có tác dụng khi đang trong 1 round).
+        // Khi tạm dừng, mọi Client sẽ dừng đồng hồ đếm ngược cục bộ và khoá nút Submit,
+        // cho tới khi Server bấm Tiếp tục thì đồng hồ chạy lại từ đúng thời điểm đã dừng.
+        // Trả về: true nếu vừa chuyển sang trạng thái Paused, false nếu vừa Resume hoặc
+        // không có gì để pause (chưa ingame) — gọi isPausedNow (out) để phân biệt 2 case sau.
+        public bool TogglePause(out bool actuallyToggled)
+        {
+            if (!ingame)
+            {
+                MessageBox.Show("Chưa có round nào đang diễn ra để tạm dừng.");
+                actuallyToggled = false;
+                return isPaused;
+            }
+            isPaused = !isPaused;
+            actuallyToggled = true;
+            if (isPaused)
+            {
+                pauseGate.Reset(); // Chặn mọi roundStart() đang/sắp chạy
+            }
+            else
+            {
+                // Resume: reset timeupCount để tránh đếm kép — client timer chạy lại
+                // từ đầu sau resume nên sẽ gửi Timeup mới, không nên cộng vào count cũ.
+                lock (_lock) { timeupCount = 0; }
+                pauseGate.Set(); // Mở gate, cho phép roundStart() đang chờ chạy tiếp
+            }
+            broadcast(isPaused ? "@@@Pause!@@@" : "@@@Resume!@@@");
+            broadcast(isPaused ? "m⏸ Server đã tạm dừng ván chơi." : "m▶ Ván chơi đã tiếp tục.");
+            return isPaused;
+        }
+
+        // Dừng Server NGAY LẬP TỨC, bất kể đang trong game hay không (khác với việc đóng Form
+        // trước đây bị chặn cứng nếu ingame == true). Ngắt kết nối toàn bộ Client, đóng cổng
+        // lắng nghe, đưa Server về trạng thái ban đầu để có thể tạo phòng mới ngay nếu muốn.
+        public void StopServerNow()
+        {
+            if (thread == null)
+            {
+                MessageBox.Show("Server chưa được khởi động.");
+                return;
+            }
+
+            if (MessageBox.Show(
+                "Dừng Server ngay lập tức? Mọi người chơi đang kết nối sẽ bị ngắt kết nối.",
+                "Xác nhận dừng Server", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+            {
+                return;
+            }
+
+            try { broadcast("@@@ServerStopped!@@@"); } catch { }
+
+            ingame = false;
+            isPaused = false;
+            pauseGate.Set(); // Mở gate tránh treo thread roundStart() đang chờ nếu vừa pause
+            round = 0;
+            currentRound = 0; // Bug fix: reset currentRound tránh lần chơi sau bắt đầu sai round
+            timeupCount = 0;  // Bug fix: reset timeupCount tránh sót count từ game trước
+
+            lock (_lock)
+            {
+                foreach (var c in clientsList.Values.ToList())
+                {
+                    try { c.Close(); } catch { /* Bỏ qua nếu client đã đóng sẵn */ }
+                }
+                clientsList.Clear();
+                scoreBoard.Clear();
+                readyPlayers.Clear();
+            }
+
+            // serverSocket.Stop() sẽ khiến AcceptTcpClient() đang chờ ở serverThread() ném
+            // SocketException(Interrupted) -> vòng lặp accept tự thoát ra một cách an toàn
+            // (logic này đã có sẵn từ trước, không cần Thread.Abort()).
+            try { serverSocket?.Stop(); } catch { }
+
+            thread = null;
+        }
+
         private void readyCheck()
         {
             bool shouldStart = false;
@@ -407,6 +499,8 @@ namespace Lab06
             if (ingame)
             {
                 ingame = false;
+                isPaused = false;
+                pauseGate.Set();
                 int highscore = int.MinValue;
                 lock (_lock)
                 {
